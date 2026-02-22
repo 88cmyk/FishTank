@@ -123,4 +123,5 @@ body{
   font-size:12px;
 }
 .bullets{margin:0; padding-left:18px; color:var(--muted); font-size:13px}
+
 .bullets li{margin:6px 0}
