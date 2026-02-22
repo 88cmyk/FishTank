@@ -3,79 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Fishy Home (GitHub Pages)</title>
+  <title>FishTank 3D</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">🐟</div>
-      <div>
-        <div class="title">Fishy Home</div>
-        <div class="subtitle">작은 가상 어항 · 꾸미고 · 먹이고 · 저장하기</div>
-      </div>
+  <div id="app">
+    <canvas id="c"></canvas>
+
+    <!-- 최소 UI: 오른쪽 아래 3개 버튼만 -->
+    <div class="hud">
+      <button id="modeFeed" class="iconBtn" title="Feed">🍤</button>
+      <button id="modeDecor" class="iconBtn" title="Decor">🪴</button>
+      <button id="modeSave" class="iconBtn" title="Save">💾</button>
     </div>
 
-    <div class="actions">
-      <button id="addFishBtn" class="btn">물고기 추가</button>
-      <button id="feedBtn" class="btn">먹이 모드</button>
+    <div class="toast" id="toast">Ready</div>
+  </div>
 
-      <div class="selectWrap">
-        <select id="decorSelect" class="select">
-          <option value="plant">수초</option>
-          <option value="rock">바위</option>
-          <option value="chest">보물상자</option>
-        </select>
-        <button id="addDecorBtn" class="btn">장식 추가</button>
-      </div>
-
-      <button id="exportBtn" class="btn ghost">내보내기</button>
-      <button id="importBtn" class="btn ghost">가져오기</button>
-      <button id="resetBtn" class="btn danger ghost">리셋</button>
-    </div>
-  </header>
-
-  <main class="layout">
-    <section class="tankCard">
-      <canvas id="tank"></canvas>
-
-      <div class="hint">
-        <div><b>드래그</b>: 장식 이동</div>
-        <div><b>먹이 모드</b>: 어항을 클릭하면 사료 투척</div>
-        <div><b>삭제</b>: 장식 더블클릭</div>
-      </div>
-    </section>
-
-    <aside class="side">
-      <div class="panel">
-        <h3>상태</h3>
-        <div class="kv">
-          <div>물고기</div><div id="fishCount">0</div>
-          <div>장식</div><div id="decorCount">0</div>
-          <div>모드</div><div id="modeText">기본</div>
-        </div>
-        <div class="small">
-          * 자동 저장: 브라우저에 상태가 저장돼서 새로고침해도 유지됨.
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3>공유/백업 (JSON)</h3>
-        <textarea id="jsonBox" placeholder="내보내기 하면 여기에 JSON이 생성돼. 가져오기 할 때는 JSON 붙여넣고 가져오기 눌러줘."></textarea>
-      </div>
-
-      <div class="panel">
-        <h3>튜닝 아이디어</h3>
-        <ul class="bullets">
-          <li>물고기 종류(금붕어/구피/베타)별 속도/색상/성격</li>
-          <li>코인/상점: 먹이 주면 코인, 장식 구매</li>
-          <li>미션: “3일 연속 먹이주기” 같은 데일리</li>
-          <li>URL 공유: JSON을 압축해서 쿼리스트링에 넣기</li>
-        </ul>
-      </div>
-    </aside>
-  </main>
-
-  <script src="./app.js"></script>
+  <script type="module" src="./main.js"></script>
 </body>
 </html>
