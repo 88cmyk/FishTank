@@ -4,66 +4,54 @@ import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160.0/exampl
 const canvas = document.querySelector("#c");
 const toast = document.querySelector("#toast");
 
+function setToast(msg){ if(toast) toast.textContent = msg; }
+setToast("Loading 3D...");
+
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x061022, 4, 18);
+scene.background = null;
+scene.fog = new THREE.Fog(0x061022, 6, 22);
 
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 2.2, 7.5);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
 controls.minDistance = 5;
-controls.maxDistance = 11;
+controls.maxDistance = 12;
 controls.maxPolarAngle = Math.PI * 0.48;
 
-function addLights(){
-  const a = new THREE.AmbientLight(0xffffff, 0.55);
-  scene.add(a);
-
-  const key = new THREE.DirectionalLight(0xffffff, 0.9);
-  key.position.set(4, 6, 2);
-  scene.add(key);
-
-  const fill = new THREE.PointLight(0x5ad1e6, 0.9, 30);
-  fill.position.set(-3, 2, 3);
-  scene.add(fill);
-}
-addLights();
-
-// 바닥(테이블 느낌)
-const floor = new THREE.Mesh(
-  new THREE.CircleGeometry(6, 64),
-  new THREE.MeshStandardMaterial({ color: 0x0b1426, roughness: 0.95, metalness: 0.0 })
+// ✅ “보이는지” 즉시 확인용 디버그 오브젝트
+scene.add(new THREE.AxesHelper(3));
+scene.add(new THREE.GridHelper(8, 8));
+const testBox = new THREE.Mesh(
+  new THREE.BoxGeometry(0.6, 0.6, 0.6),
+  new THREE.MeshBasicMaterial({ color: 0xff00ff })
 );
-floor.rotation.x = -Math.PI/2;
-floor.position.y = -1.2;
-scene.add(floor);
+testBox.position.set(0, 0.2, 0);
+scene.add(testBox);
 
-const glass = new THREE.Mesh(
+const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+scene.add(ambient);
+const dir = new THREE.DirectionalLight(0xffffff, 1.0);
+dir.position.set(4, 6, 2);
+scene.add(dir);
+
+// 어항(단순한 박스 형태)
+const tankW = 4.4, tankH = 2.8, tankD = 2.6;
+const tankFrame = new THREE.Mesh(
   new THREE.BoxGeometry(tankW, tankH, tankD),
-  new THREE.MeshStandardMaterial({
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.15,
-  })
+  new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.10 })
 );
+tankFrame.position.y = 0.2;
+scene.add(tankFrame);
 
-const water = new THREE.Mesh(
-  new THREE.BoxGeometry(tankW*0.97, tankH*0.88, tankD*0.97),
-  new THREE.MeshStandardMaterial({
-    color: 0x1aa6b8,
-    transparent: true,
-    opacity: 0.25,
-  })
-);
-
-// 모래
+// 바닥 모래
 const sand = new THREE.Mesh(
   new THREE.BoxGeometry(tankW*0.94, tankH*0.18, tankD*0.94),
   new THREE.MeshStandardMaterial({ color: 0xd9c38a, roughness: 0.95 })
@@ -71,16 +59,16 @@ const sand = new THREE.Mesh(
 sand.position.y = 0.2 - tankH*0.41;
 scene.add(sand);
 
-// 물고기(도형 기반 로우폴리)
+// 물고기(로우폴리)
 function makeFish(color=0xffd166){
-  const group = new THREE.Group();
+  const g = new THREE.Group();
 
   const body = new THREE.Mesh(
     new THREE.SphereGeometry(0.22, 16, 16),
-    new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.0 })
+    new THREE.MeshStandardMaterial({ color, roughness: 0.35 })
   );
   body.scale.set(1.35, 0.85, 0.9);
-  group.add(body);
+  g.add(body);
 
   const tail = new THREE.Mesh(
     new THREE.ConeGeometry(0.16, 0.32, 16),
@@ -88,31 +76,20 @@ function makeFish(color=0xffd166){
   );
   tail.rotation.z = Math.PI/2;
   tail.position.x = -0.33;
-  group.add(tail);
+  g.add(tail);
 
-  const fin = new THREE.Mesh(
-    new THREE.ConeGeometry(0.09, 0.18, 12),
-    new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.65, transparent:true, opacity:0.55 })
-  );
-  fin.rotation.z = -Math.PI/2;
-  fin.position.set(0.05, 0.02, 0.12);
-  group.add(fin);
-
-  // 눈
   const eye = new THREE.Mesh(
     new THREE.SphereGeometry(0.03, 12, 12),
     new THREE.MeshStandardMaterial({ color: 0x101010 })
   );
   eye.position.set(0.22, 0.05, 0.10);
-  group.add(eye);
+  g.add(eye);
 
-  // 움직임 파라미터
-  group.userData = {
+  g.userData = {
     v: new THREE.Vector3((Math.random()*2-1)*0.015, (Math.random()*2-1)*0.01, (Math.random()*2-1)*0.015),
     t: Math.random()*1000,
   };
-
-  return group;
+  return g;
 }
 
 const fishes = [];
@@ -124,31 +101,27 @@ for(let i=0;i<6;i++){
   fishes.push(f);
 }
 
-function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
-
-// 탱크 내부 bounds
 const bounds = {
   x: tankW*0.43,
   yMin: 0.2 - tankH*0.38,
   yMax: 0.2 + tankH*0.30,
   z: tankD*0.40
 };
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
 
 let mode = "normal";
-document.querySelector("#modeFeed").onclick = () => { mode="feed"; toast.textContent="Feed mode: 클릭하면 먹이(효과)"; };
-document.querySelector("#modeDecor").onclick = () => { mode="decor"; toast.textContent="Decor mode: 다음 단계에서 배치 구현"; };
-document.querySelector("#modeSave").onclick = () => { toast.textContent="Save: (다음 단계) 배치/상태 저장"; };
+document.querySelector("#modeFeed").onclick = () => { mode="feed"; setToast("Feed mode: 클릭하면 물고기가 살짝 모여"); };
+document.querySelector("#modeDecor").onclick = () => { mode="decor"; setToast("Decor mode: 다음 단계에서 배치 구현"); };
+document.querySelector("#modeSave").onclick = () => { setToast("Save: 다음 단계에서 저장 구현"); };
 
 canvas.addEventListener("click", (e)=>{
   if(mode !== "feed") return;
-  // 먹이 느낌: 클릭 위치 근처로 물고기들이 살짝 모이게 목표점 생성
   const rect = canvas.getBoundingClientRect();
   const nx = ((e.clientX-rect.left)/rect.width)*2-1;
   const ny = -(((e.clientY-rect.top)/rect.height)*2-1);
+
   const ray = new THREE.Raycaster();
   ray.setFromCamera({x:nx,y:ny}, camera);
-
-  // 물 plane을 가정하고 교차점 계산(대충 y=0.1 부근)
   const plane = new THREE.Plane(new THREE.Vector3(0,1,0), -0.1);
   const p = new THREE.Vector3();
   ray.ray.intersectPlane(plane, p);
@@ -158,37 +131,27 @@ canvas.addEventListener("click", (e)=>{
     f.userData.v.add(dir);
   });
 
-  toast.textContent = "🍤 feed!";
+  setToast("🍤 feed!");
 });
 
 function animate(){
   requestAnimationFrame(animate);
   controls.update();
 
-  // 물 살짝 흔들리는 느낌
-  const t = performance.now()*0.001;
-  water.material.opacity = 0.50 + Math.sin(t*1.2)*0.03;
-
-  // 물고기 이동 + 꼬리 흔들기
   fishes.forEach((f)=>{
     f.userData.t += 0.06;
     const wob = Math.sin(f.userData.t)*0.25;
 
-    // heading
     f.rotation.y = Math.atan2(f.userData.v.x, f.userData.v.z);
-    // tail wag (tail is child #1)
     if(f.children[1]) f.children[1].rotation.y = wob;
 
-    // move
     f.position.add(f.userData.v);
 
-    // 부드러운 감속 + 랜덤 워블
     f.userData.v.multiplyScalar(0.985);
     f.userData.v.x += (Math.random()*2-1)*0.0006;
     f.userData.v.y += (Math.random()*2-1)*0.0004;
     f.userData.v.z += (Math.random()*2-1)*0.0006;
 
-    // bounds bounce
     f.position.x = clamp(f.position.x, -bounds.x, bounds.x);
     f.position.y = clamp(f.position.y, bounds.yMin, bounds.yMax);
     f.position.z = clamp(f.position.z, -bounds.z, bounds.z);
@@ -204,8 +167,8 @@ animate();
 
 window.addEventListener("resize", ()=>{
   renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-
 });
 
+setToast("Ready");
