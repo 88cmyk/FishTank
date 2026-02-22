@@ -45,40 +45,23 @@ floor.rotation.x = -Math.PI/2;
 floor.position.y = -1.2;
 scene.add(floor);
 
-// 어항(유리 박스)
-const tankW = 4.4, tankH = 2.8, tankD = 2.6;
 const glass = new THREE.Mesh(
   new THREE.BoxGeometry(tankW, tankH, tankD),
-  new THREE.MeshPhysicalMaterial({
+  new THREE.MeshStandardMaterial({
     color: 0xffffff,
-    roughness: 0.05,
-    metalness: 0.0,
-    transmission: 1.0,
-    thickness: 0.35,
-    ior: 1.45,
     transparent: true,
-    opacity: 1.0,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.05,
+    opacity: 0.15,
   })
 );
-glass.position.y = 0.2;
-scene.add(glass);
 
-// 물(약간의 컬러 + 반투명)
 const water = new THREE.Mesh(
   new THREE.BoxGeometry(tankW*0.97, tankH*0.88, tankD*0.97),
-  new THREE.MeshPhysicalMaterial({
+  new THREE.MeshStandardMaterial({
     color: 0x1aa6b8,
-    roughness: 0.02,
-    transmission: 0.85,
-    thickness: 1.0,
     transparent: true,
-    opacity: 0.55,
+    opacity: 0.25,
   })
 );
-water.position.y = 0.2 - tankH*0.06;
-scene.add(water);
 
 // 모래
 const sand = new THREE.Mesh(
@@ -223,4 +206,5 @@ window.addEventListener("resize", ()=>{
   renderer.setSize(window.innerWidth, window.innerHeight);
   camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
+
 });
